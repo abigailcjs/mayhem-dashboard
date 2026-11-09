@@ -37,48 +37,44 @@
   .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
   svg text.ax { fill: var(--muted); font-size: 11px; } svg .grid { stroke: var(--line); } svg .zero { stroke: var(--muted); stroke-dasharray: 3 3; }
   svg .bar { fill: var(--accent); } svg .lbl { fill: var(--fg); font-size: 12px; }
+  .key { display: inline-block; width: 22px; border-top: 2px solid var(--fg); vertical-align: middle; margin-right: 6px; } .key.dash { border-top-style: dashed; }
+  td small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
   footer { color: var(--muted); font-size: 12px; margin-top: 36px; }
 </style>
 </head>
 <body>
 <main>
   <header><h1>Mayhem monitor</h1><div class="updated" id="updated">Loading…</div></header>
-  <p class="timer">Round 6 running for <b id="timer">–</b></p>
+  <p class="timer">Round 7 running for <b id="timer">–</b></p>
 
   <div class="big">
     <div><b id="coins">–</b><span>Mayhem coins</span></div>
     <div><b id="potCoins">–</b><span>Pot reached 0.5 SOL</span></div>
-    <div><b id="wallet">–</b><span>Auto's wallet (SOL)</span></div>
+    <div><b id="done">–</b><span>Real-price trades done</span></div>
   </div>
-  <p class="note" id="walletNote"></p>
 
   <h2>Running total per bot (SOL)</h2>
   <div id="chart1"></div>
+  <p class="note"><span class="key dash"></span>Original method &nbsp; <span class="key"></span>Real prices, pot limit (harsh)</p>
   <table>
-    <thead><tr><th>Bot</th><th>Done</th><th>Profitable</th><th>Open</th><th>Total (SOL)</th></tr></thead>
+    <thead><tr><th>Bot</th><th>Original method</th><th>Real, kind</th><th>Real, harsh</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
-  <p class="note">Every bot buys 0.1 SOL at $2K–4K after second 15 (15+ trades by then; Quantity: 10+). Baseline ignores the pot. Pot minimum needs 0.5+ SOL in the pot. Pot growing needs the pot up 10% in the last 10 seconds. Ride the pot buys like Pot growing and sells when the pot falls 20% from its peak (up to 15 minutes). Baseline, Pot minimum, Pot growing and Quantity + pot sell at $20K. The four "+ pot" bots at the bottom (Quality = 15+ trades by 10s, Quantity = 10+ by 15s) need a 0.5+ SOL pot and sell at $9K, or half at $9K and half at $15K. All use a 60% stop-loss. Fills are realistic: no sell can take out more than the pot holds. Auto trades a pretend 0.3 SOL wallet and copies the best pot bot.</p>
+  <p class="note">Totals in SOL at 0.1 SOL per trade; under each, trades won out of trades finished. Every bot buys at $2K–4K once a coin has enough early trades (Quality: 15+ trades by 10 seconds; Quantity: 10+ by 15 seconds), stops at a 60% loss and is out after 5 minutes.</p>
+  <p class="note"><b>Original method</b> is the bot exactly as first built: it reads the formula market cap and assumes every sale is paid in full. That method is wrong on Mayhem coins. <b>Real</b> is the same rule on the real price, where a sale can never take out more SOL than the pot holds. <b>Harsh</b> pays you only from the SOL recorded in the pot; <b>kind</b> counts your own 0.1 SOL as still sitting in the pot. The truth is between those two.</p>
 
   <h2>Win rate by pot size when buying</h2>
   <div id="chart2"></div>
-  <p class="note">Baseline's trades (it buys whatever the pot), grouped by how much real SOL was in the pot at the moment it bought.</p>
+  <p class="note">Trades of the real-price "Quantity, sell all above $9K" bot (kind case), grouped by how much real SOL was in the pot at the moment it bought.</p>
 
   <h2>Pot vs price for coins that passed $9K</h2>
   <div id="chart3"></div>
   <p class="note">Each dot is a coin at its highest market cap this round. High dots had real money behind the price; dots near the bottom were a mirage.</p>
 
-  <h2>Shown price vs what the pot really pays</h2>
-  <table>
-    <thead><tr><th>Bot</th><th>Shown price</th><th>Pot pays (0.1)</th><th>Pot pays (0.005)</th></tr></thead>
-    <tbody id="sizeRows"></tbody>
-  </table>
-  <p class="note">Totals in SOL for the same trades. "Shown price" sells at the market cap on screen; "Pot pays" is what the pot could actually pay out at that moment, at 0.1 or 0.005 SOL per trade.</p>
-
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
 </main>
 <script>
-const COLORS = ["#2a78d6", "#0f9d58", "#d97706", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c"];
+const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6"];
 const el = (id) => document.getElementById(id);
 const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);
@@ -94,7 +90,7 @@ function lineChart(rows, t0) {
   const vals = all.map((p) => p[1]).concat(0, empty ? 0.1 : 0, empty ? -0.1 : 0), lo = Math.min(...vals), hi = Math.max(...vals), pad = (hi - lo) * 0.08 || 0.1, y0 = lo - pad, y1 = hi + pad;
   const X = (t) => L + ((t - t0) / Math.max(1, t1 - t0)) * (W - L - R), Y = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
   const ticks = [y0 + pad, (y0 + y1) / 2, y1 - pad].map((v) => `<text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end" class="ax">${v.toFixed(2).replace("-", "−")}</text><line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/>`).join("");
-  const lines = rows.map((r, i) => r.series.length ? `<polyline points="${[[t0, 0], ...r.series].map((p) => X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="${COLORS[i]}" stroke-width="${i === 0 ? 2.8 : 1.6}" stroke-linejoin="round"/>` : "").join("");
+  const lines = rows.map((r, i) => r.series.length ? `<polyline points="${[[t0, 0], ...r.series].map((p) => X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="${r.color}" stroke-width="${r.dash ? 1.4 : 2.2}" ${r.dash ? 'stroke-dasharray="5 4"' : ""} stroke-linejoin="round"/>` : "").join("");
   const msg = empty ? `<text x="${(L + W - R) / 2}" y="${Y(0) - 8}" text-anchor="middle" class="ax">Lines appear as the first trades finish</text>` : "";
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Running total in SOL per bot">${ticks}<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" class="zero"/>${lines}${msg}<text x="${L}" y="${H - 6}" class="ax">${tl(t0)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end" class="ax">${tl(t1)}</text></svg>`;
 }
@@ -125,13 +121,12 @@ async function load() {
     el("updated").textContent = stale ? "Recorder stopped " + ago(s.recorderLastSeen) : "Updated " + ago(s.updated);
     el("updated").className = "updated" + (stale ? " stale" : "");
     el("coins").textContent = s.coins.toLocaleString(); el("potCoins").textContent = s.potCoins.toLocaleString();
-    const w = s.wallet; el("wallet").textContent = w ? w.equity.toFixed(2) : "0.30";
-    el("walletNote").textContent = w ? `Auto started with 0.30 SOL, has ${w.open} trade${w.open === 1 ? "" : "s"} open, copying "${w.copying}".` : "";
-    el("chart1").innerHTML = lineChart(s.bots, START ?? Date.now());
-    el("rows").innerHTML = s.bots.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td><td>${r.n}</td><td>${r.profitable}</td><td>${r.open}</td><td class="${cls(r.pnl)}">${sol(r.pnl)}<br><small class="usd">${(r.pnl < 0 ? "−$" : "+$") + Math.abs(r.pnl * SOLUSD).toFixed(2)}</small></td></tr>`).join("");
+    const cell = (v, won, n) => v == null ? "<td>–</td>" : `<td class="${cls(v)}">${sol(v)}<small>${won} of ${n} won</small></td>`;
+    el("done").textContent = s.rules.reduce((a, r) => a + r.real.n, 0).toLocaleString();
+    el("chart1").innerHTML = lineChart(s.rules.flatMap((r, i) => [{ series: r.orig.series, color: COLORS[i], dash: true }, { series: r.real.series, color: COLORS[i] }]), START ?? Date.now());
+    el("rows").innerHTML = s.rules.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td>${cell(r.orig.pnl, r.orig.won, r.orig.n)}${cell(r.real.kind, r.real.wonKind, r.real.n)}${cell(r.real.pnl, r.real.won, r.real.n)}</tr>`).join("");
     el("chart2").innerHTML = barChart(s.buckets);
     el("chart3").innerHTML = scatterChart(s.scatter);
-    el("sizeRows").innerHTML = s.bots.map((r) => `<tr><td>${r.label}</td><td class="${cls(r.naive)}">${sol(r.naive ?? 0)}</td><td class="${cls(r.pnl)}">${sol(r.pnl)}</td><td class="${cls(r.pnl005)}">${sol(r.pnl005)}</td></tr>`).join("");
   } catch { el("updated").textContent = "Could not load data"; }
 }
 load(); setInterval(load, 60000);

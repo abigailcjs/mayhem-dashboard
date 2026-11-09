@@ -45,7 +45,7 @@
 <body>
 <main>
   <header><h1>Mayhem monitor</h1><div class="updated" id="updated">Loading…</div></header>
-  <p class="timer">Round 8 running for <b id="timer">–</b></p>
+  <p class="timer">Round 9 running for <b id="timer">–</b></p>
 
   <div class="big">
     <div><b id="coins">–</b><span>Mayhem coins</span></div>
@@ -55,19 +55,17 @@
 
   <h2>Running total per bot (SOL)</h2>
   <div id="chart1"></div>
-  <p class="note"><span class="key dash"></span>Original method &nbsp; <span class="key"></span>Exact</p>
   <table>
-    <thead><tr><th>Bot</th><th>Original method</th><th>Exact</th></tr></thead>
+    <thead><tr><th>Bot</th><th>Done</th><th>Won</th><th>Total (SOL)</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
-  <p class="note">Totals in SOL at 0.1 SOL per trade; under each, trades won out of trades finished. Every bot buys at $2K–4K once a coin has enough early trades (Quality: 15+ trades by 10 seconds; Quantity: 10+ by 15 seconds), stops at a 60% loss and is out after 5 minutes.</p>
-  <p class="note"><b>Exact</b> reads the coin's true price from the chain after every trade and pays each buy and sale with pump.fun's own formula, with the 1.25% fee each way and never more than the pot holds. Real sales made at $9K or more were checked against this and were paid in full. <b>Original method</b> is the bot as first built, reading a market cap formula that is wrong on Mayhem coins; it is shown only for comparison.</p>
-  <p class="note"><b>Half at 2x, rest to $15K</b> sells half once the price is double what was paid and lets the rest ride to $15K or the 5-minute mark. <b>Sell when pot falls 30%</b> buys only when the pot already holds 0.1 SOL, has no price target, and sells when the pot has dropped 30% from its high.</p>
-  <p class="note">The two <b>Live coin</b> bots (added about 4 hours into the round) test a pattern found in past coins. They buy any coin between 15 and 60 seconds old where pump.fun's bot has put in at least 0.2 SOL more than it has taken out, the pot holds 0.4 SOL or more, and the price is $2K–5K. Past coins like that reached $9K about one time in four instead of one in fifteen. This is the live check on whether that holds.</p>
+  <p class="note">Every bot buys 0.1 SOL, stops at a 60% loss and is out after 5 minutes. Prices and payouts are exact: the coin's true price from the chain after every trade, pump.fun's own formula, the 1.25% fee each way, and never more than the pot holds.</p>
+  <p class="note"><b>The sign</b> is what coins that reached $9K had in common beforehand: pump.fun's bot has put in at least 0.2 SOL more than it has taken out, the pot holds 0.4 SOL or more, and the price is $2K–5K. The bots look for it from 15 seconds (or 30 seconds) after launch until the coin is a minute old. In past coins the sign went on to $9K about one time in four, against one in fifteen for all coins. It was found by looking back, so this round is the test of whether it holds.</p>
+  <p class="note"><b>Looser sign</b> needs only 0.1 SOL from the bot, 0.3 SOL in the pot and a price of $2K–4K. The two <b>Old rule</b> bots buy at $2K–4K after enough early trades (Quantity: 10+ by 15 seconds; Quality: 15+ by 10 seconds) with no sign, for comparison.</p>
 
   <h2>Win rate by pot size when buying</h2>
   <div id="chart2"></div>
-  <p class="note">Trades of the exact "Quantity, sell all above $9K" bot, grouped by how much real SOL was in the pot at the moment it bought.</p>
+  <p class="note">Trades of the "Sign from 15 s, sell all above $9K" bot, grouped by how much real SOL was in the pot at the moment it bought.</p>
 
   <h2>Pot vs price for coins that passed $9K</h2>
   <div id="chart3"></div>
@@ -126,7 +124,7 @@ async function load() {
     const cell = (v, won, n) => v == null ? "<td>–</td>" : `<td class="${cls(v)}">${sol(v)}<small>${won} of ${n} won</small></td>`;
     el("done").textContent = s.rules.reduce((a, r) => a + r.real.n, 0).toLocaleString();
     el("chart1").innerHTML = lineChart(s.rules.flatMap((r, i) => [...(r.orig ? [{ series: r.orig.series, color: COLORS[i], dash: true }] : []), { series: r.real.series, color: COLORS[i] }]), START ?? Date.now());
-    el("rows").innerHTML = s.rules.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td>${r.orig ? cell(r.orig.pnl, r.orig.won, r.orig.n) : "<td>–</td>"}${cell(r.real.pnl, r.real.won, r.real.n)}</tr>`).join("");
+    el("rows").innerHTML = s.rules.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td><td>${r.real.n}</td><td>${r.real.won}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`).join("");
     el("chart2").innerHTML = barChart(s.buckets);
     el("chart3").innerHTML = scatterChart(s.scatter);
   } catch { el("updated").textContent = "Could not load data"; }

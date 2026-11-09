@@ -89,6 +89,7 @@
     <p class="note"><b>PERSON</b> means the last trade before the bot buys was made by a human, not by pump.fun's own robot. If the robot made it, the coin is skipped. Three bots with only this rule started 20:06 UTC on 9 Nov.</p>
     <p class="note"><b>★ Strictest</b> (started 20:28 UTC on 9 Nov) also need two more things. <b>Bot quiet:</b> pump.fun's robot has not traded for half a second. <b>6 people:</b> at least 6 different people have already traded the coin (8 for the Quantity bot, which has no quiet rule).</p>
     <p class="note">In a replay of the 19 hours before, the strictest sign rule made 52 trades and won about 1 in 3. Those rules were found by looking back, so this is the test of whether they hold.</p>
+    <p class="note">Two more bots started 21:38 UTC on 9 Nov, each with the PERSON rule plus one new idea. <b>Bought on a dip:</b> the price has fallen to under 57% of the coin's highest price so far. <b>Not frantic:</b> fewer than 15 trades in the last 5 seconds. In the same replay the dip rule made 102 trades and won 29%; the not-frantic rule made 207 and won 25%. Both are hints, not proof.</p>
   </section>
 
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
@@ -145,7 +146,7 @@ async function load() {
     const cell = (v, won, n) => v == null ? "<td>–</td>" : `<td class="${cls(v)}">${sol(v)}<small>${won} of ${n} won</small></td>`;
     el("done").textContent = s.rules.reduce((a, r) => a + r.real.n, 0).toLocaleString();
     // Picky bots (PERSON rules) get their own section at the bottom; the top keeps the eight round-9 bots.
-    const isPicky = (r) => /_p(q|8)?$/.test(r.key), isStrict = (r) => /_p(q|8)$/.test(r.key);
+    const isPicky = (r) => /_p(q|8|d|c)?$/.test(r.key), isStrict = (r) => /_p(q|8)$/.test(r.key);
     const main = s.rules.filter((r) => !isPicky(r)), picky = s.rules.filter(isPicky);
     el("chart1").innerHTML = lineChart(main.flatMap((r, i) => [...(r.orig ? [{ series: r.orig.series, color: COLORS[i], dash: true }] : []), { series: r.real.series, color: COLORS[i] }]), START ?? Date.now());
     el("rows").innerHTML = main.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td><td>${r.real.n}</td><td>${r.real.won}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`).join("");

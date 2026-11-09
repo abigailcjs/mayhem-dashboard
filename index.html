@@ -61,6 +61,7 @@
   </table>
   <p class="note">Every bot buys 0.1 SOL, stops at a 60% loss and is out after 5 minutes. Prices and payouts are exact: the coin's true price from the chain after every trade, pump.fun's own formula, the 1.25% fee each way, and never more than the pot holds.</p>
   <p class="note"><b>The sign</b> is what coins that reached $9K had in common beforehand: pump.fun's bot has put in at least 0.2 SOL more than it has taken out, the pot holds 0.4 SOL or more, and the price is $2K–5K. The bots look for it from 15 seconds (or 30 seconds) after launch until the coin is a minute old. In past coins the sign went on to $9K about one time in four, against one in fifteen for all coins. It was found by looking back, so this round is the test of whether it holds.</p>
+  <p class="note"><b>PERSON completed</b> (three bots added 20:06 UTC on 9 Nov): the bot buys only when the trade that completed its buy rule was a person's trade, not pump.fun's bot's; if the bot's own trade completed it, the coin is skipped. Found by looking back at round 9; on older coins it lifted every rule by 6–13 points but landed near break-even, so these three are the forward test.</p>
   <p class="note"><b>Looser sign</b> needs only 0.1 SOL from the bot, 0.3 SOL in the pot and a price of $2K–4K. The two <b>Old rule</b> bots buy at $2K–4K after enough early trades (Quantity: 10+ by 15 seconds; Quality: 15+ by 10 seconds) with no sign, for comparison.</p>
 
   <h2>Win rate by pot size when buying</h2>
@@ -74,7 +75,7 @@
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
 </main>
 <script>
-const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c"]; const OLD_COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
+const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c", "#0d9488", "#a16207", "#7c3aed"]; const OLD_COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
 const el = (id) => document.getElementById(id);
 const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);

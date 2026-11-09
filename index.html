@@ -63,6 +63,7 @@
   <p class="note">Totals in SOL at 0.1 SOL per trade; under each, trades won out of trades finished. Every bot buys at $2K–4K once a coin has enough early trades (Quality: 15+ trades by 10 seconds; Quantity: 10+ by 15 seconds), stops at a 60% loss and is out after 5 minutes.</p>
   <p class="note"><b>Exact</b> reads the coin's true price from the chain after every trade and pays each buy and sale with pump.fun's own formula, with the 1.25% fee each way and never more than the pot holds. Real sales made at $9K or more were checked against this and were paid in full. <b>Original method</b> is the bot as first built, reading a market cap formula that is wrong on Mayhem coins; it is shown only for comparison.</p>
   <p class="note"><b>Half at 2x, rest to $15K</b> sells half once the price is double what was paid and lets the rest ride to $15K or the 5-minute mark. <b>Sell when pot falls 30%</b> buys only when the pot already holds 0.1 SOL, has no price target, and sells when the pot has dropped 30% from its high.</p>
+  <p class="note">The two <b>Live coin</b> bots (added about 4 hours into the round) test a pattern found in past coins. They buy any coin between 15 and 60 seconds old where pump.fun's bot has put in at least 0.2 SOL more than it has taken out, the pot holds 0.4 SOL or more, and the price is $2K–5K. Past coins like that reached $9K about one time in four instead of one in fifteen. This is the live check on whether that holds.</p>
 
   <h2>Win rate by pot size when buying</h2>
   <div id="chart2"></div>
@@ -75,7 +76,7 @@
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
 </main>
 <script>
-const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
+const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c"]; const OLD_COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
 const el = (id) => document.getElementById(id);
 const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);

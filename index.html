@@ -28,6 +28,7 @@
   .big b { display: block; font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
   .big span { color: var(--muted); font-size: 13px; }
   h2 { font-size: 15px; margin: 28px 0 6px; }
+  h2.sec { font-size: 18px; margin: 44px 0 0; padding-top: 24px; border-top: 2px solid var(--fg); letter-spacing: -0.01em; }
   table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   th, td { padding: 9px 3px; border-bottom: 1px solid var(--line); text-align: right; font-size: 15px; }
   th { color: var(--muted); font-weight: 500; font-size: 13px; } th:first-child, td:first-child { text-align: left; }
@@ -61,7 +62,6 @@
   </table>
   <p class="note">Every bot buys 0.1 SOL, stops at a 60% loss and is out after 5 minutes. Prices and payouts are exact: the coin's true price from the chain after every trade, pump.fun's own formula, the 1.25% fee each way, and never more than the pot holds.</p>
   <p class="note"><b>The sign</b> is what coins that reached $9K had in common beforehand: pump.fun's bot has put in at least 0.2 SOL more than it has taken out, the pot holds 0.4 SOL or more, and the price is $2K–5K. The bots look for it from 15 seconds (or 30 seconds) after launch until the coin is a minute old. In past coins the sign went on to $9K about one time in four, against one in fifteen for all coins. It was found by looking back, so this round is the test of whether it holds.</p>
-  <p class="note"><b>PERSON completed</b> (three bots added 20:06 UTC on 9 Nov): the bot buys only when the trade that completed its buy rule was a person's trade, not pump.fun's bot's; if the bot's own trade completed it, the coin is skipped. Found by looking back at round 9; on older coins it lifted every rule by 6–13 points but landed near break-even, so these three are the forward test.</p>
   <p class="note"><b>Looser sign</b> needs only 0.1 SOL from the bot, 0.3 SOL in the pot and a price of $2K–4K. The two <b>Old rule</b> bots buy at $2K–4K after enough early trades (Quantity: 10+ by 15 seconds; Quality: 15+ by 10 seconds) with no sign, for comparison.</p>
 
   <h2>Win rate by pot size when buying</h2>
@@ -72,6 +72,25 @@
   <div id="chart3"></div>
   <p class="note">Each dot is a coin at its highest market cap this round. High dots had real money behind the price; dots near the bottom were a mirage.</p>
 
+  <section id="picky">
+    <h2 class="sec">Picky bots: fewer trades, stricter rules</h2>
+    <p class="timer">Running for <b id="pTimer">–</b></p>
+    <div class="big">
+      <div><b id="pDone">–</b><span>Trades done</span></div>
+      <div><b id="pWon">–</b><span>Won</span></div>
+      <div><b id="pTotal">–</b><span>Total (SOL)</span></div>
+    </div>
+    <div id="chartP"></div>
+    <table>
+      <thead><tr><th>Bot</th><th>Done</th><th>Won</th><th>Avg per trade</th><th>Total (SOL)</th></tr></thead>
+      <tbody id="rowsP"></tbody>
+    </table>
+    <p class="note">The three cards add up the four <b>strictest</b> bots (marked ★). They get about 3 trades an hour, so a fair read takes days.</p>
+    <p class="note"><b>PERSON</b> means the last trade before the bot buys was made by a human, not by pump.fun's own robot. If the robot made it, the coin is skipped. Three bots with only this rule started 20:06 UTC on 9 Nov.</p>
+    <p class="note"><b>★ Strictest</b> (started 20:28 UTC on 9 Nov) also need two more things. <b>Bot quiet:</b> pump.fun's robot has not traded for half a second. <b>6 people:</b> at least 6 different people have already traded the coin (8 for the Quantity bot, which has no quiet rule).</p>
+    <p class="note">In a replay of the 19 hours before, the strictest sign rule made 52 trades and won about 1 in 3. Those rules were found by looking back, so this is the test of whether they hold.</p>
+  </section>
+
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
 </main>
 <script>
@@ -81,8 +100,9 @@ const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);
 const ago = (t) => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : Math.round(m / 60) + " h ago"; };
 const tl = (t) => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-let START = null, SOLUSD = 0;
-function tick() { if (!START) return; const s = Math.max(0, Math.floor((Date.now() - START) / 1000)); const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60); el("timer").textContent = (d ? d + "d " : "") + h + "h " + String(m).padStart(2, "0") + "m " + String(s % 60).padStart(2, "0") + "s"; }
+let START = null, SOLUSD = 0, P_START = null;
+const clock = (from) => { const s = Math.max(0, Math.floor((Date.now() - from) / 1000)); const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60); return (d ? d + "d " : "") + h + "h " + String(m).padStart(2, "0") + "m " + String(s % 60).padStart(2, "0") + "s"; };
+function tick() { if (START) el("timer").textContent = clock(START); if (P_START) el("pTimer").textContent = clock(P_START); }
 setInterval(tick, 1000);
 
 function lineChart(rows, t0) {
@@ -124,8 +144,21 @@ async function load() {
     el("coins").textContent = s.coins.toLocaleString(); el("potCoins").textContent = s.potCoins.toLocaleString();
     const cell = (v, won, n) => v == null ? "<td>–</td>" : `<td class="${cls(v)}">${sol(v)}<small>${won} of ${n} won</small></td>`;
     el("done").textContent = s.rules.reduce((a, r) => a + r.real.n, 0).toLocaleString();
-    el("chart1").innerHTML = lineChart(s.rules.flatMap((r, i) => [...(r.orig ? [{ series: r.orig.series, color: COLORS[i], dash: true }] : []), { series: r.real.series, color: COLORS[i] }]), START ?? Date.now());
-    el("rows").innerHTML = s.rules.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td><td>${r.real.n}</td><td>${r.real.won}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`).join("");
+    // Picky bots (PERSON rules) get their own section at the bottom; the top keeps the eight round-9 bots.
+    const isPicky = (r) => /_p(q|8)?$/.test(r.key), isStrict = (r) => /_p(q|8)$/.test(r.key);
+    const main = s.rules.filter((r) => !isPicky(r)), picky = s.rules.filter(isPicky);
+    el("chart1").innerHTML = lineChart(main.flatMap((r, i) => [...(r.orig ? [{ series: r.orig.series, color: COLORS[i], dash: true }] : []), { series: r.real.series, color: COLORS[i] }]), START ?? Date.now());
+    el("rows").innerHTML = main.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td><td>${r.real.n}</td><td>${r.real.won}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`).join("");
+    el("picky").hidden = !picky.length;
+    if (picky.length) {
+      const strict = picky.filter(isStrict), sum = (k) => strict.reduce((a, r) => a + r.real[k], 0), n = sum("n"), won = sum("won"), tot = sum("pnl");
+      P_START = Date.parse("2026-11-09T20:28:36Z"); tick();
+      el("pDone").textContent = n.toLocaleString(); el("pWon").textContent = n ? won + " (" + Math.round(100 * won / n) + "%)" : "0";
+      el("pTotal").textContent = sol(tot); el("pTotal").className = cls(tot);
+      el("chartP").innerHTML = lineChart(picky.map((r, i) => ({ series: r.real.series, color: COLORS[i], dash: !isStrict(r) })), Date.parse("2026-11-09T20:06:00Z"));
+      el("rowsP").innerHTML = picky.map((r, i) => { const a = r.real.n ? r.real.pnl / r.real.n / 0.1 : null; // every trade puts in 0.1 SOL
+        return `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${isStrict(r) ? "★ " : ""}${r.label}</td><td>${r.real.n}</td><td>${r.real.won}<small>${r.real.n ? Math.round(100 * r.real.won / r.real.n) + "%" : "–"}</small></td><td class="${a == null ? "" : cls(a)}">${a == null ? "–" : (a < 0 ? "−" : "+") + Math.abs(100 * a).toFixed(0) + "%"}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`; }).join("");
+    }
     el("chart2").innerHTML = barChart(s.buckets);
     el("chart3").innerHTML = scatterChart(s.scatter);
   } catch { el("updated").textContent = "Could not load data"; }

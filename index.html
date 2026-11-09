@@ -60,9 +60,10 @@
     <thead><tr><th>Bot</th><th>Original method</th><th>Real, kind</th><th>Real, harsh</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
-  <p class="note">Totals in SOL at 0.1 SOL per trade; under each, trades won out of trades finished. Every bot buys at $2K–4K once a coin has enough early trades (Quality: 15+ trades by 10 seconds; Quantity: 10+ by 15 seconds), stops at a 60% loss and is out after 5 minutes.</p>
+  <p class="note">Totals in SOL (0.1 SOL per trade unless the bot's name says otherwise); under each, trades won out of trades finished. Every bot buys at $2K–4K once a coin has enough early trades (Quality: 15+ trades by 10 seconds; Quantity: 10+ by 15 seconds), stops at a 60% loss and is out after 5 minutes.</p>
   <p class="note"><b>Original method</b> is the bot exactly as first built: it reads the formula market cap and assumes every sale is paid in full. That method is wrong on Mayhem coins. <b>Real</b> is the same rule on the real price, where a sale can never take out more SOL than the pot holds. <b>Harsh</b> pays you only from the SOL recorded in the pot; <b>kind</b> counts your own 0.1 SOL as still sitting in the pot. The truth is between those two.</p>
   <p class="note">Two newer bots run on real prices only (added about 20 minutes into the round). <b>Half at 2x, rest to $15K</b> buys like Quality, sells half once the price has doubled (that half returns the stake) and lets the rest ride to $15K or the 5-minute mark. <b>Avoid rules, sell when pot falls</b> buys like Quality but only when the pot already holds at least 0.1 SOL, has no price target, and sells when the pot has dropped 30% from its highest since the buy.</p>
+  <p class="note">The last four test one question: is it better to build a 0.1 SOL position in two steps? All four buy like Quality and sell everything 20 seconds after the first buy. <b>0.1 at once</b> and <b>0.05 only</b> are the comparison. <b>Add 0.05 if up after 10 s</b> buys 0.05, then another 0.05 ten seconds later only if price and pot are no lower than at the first buy. <b>Add 0.05 on a 30% dip</b> buys 0.05, then another 0.05 if the price falls 30% within 3 to 15 seconds. Their totals count the SOL actually put in.</p>
 
   <h2>Win rate by pot size when buying</h2>
   <div id="chart2"></div>
@@ -75,7 +76,7 @@
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
 </main>
 <script>
-const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2"];
+const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
 const el = (id) => document.getElementById(id);
 const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);

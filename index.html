@@ -117,7 +117,7 @@ async function load() {
   try {
     const s = await (await fetch("stats.json?" + Date.now(), { cache: "no-store" })).json();
     START = s.round?.start ?? null; SOLUSD = s.solUsd ?? 0; tick();
-    const stale = Date.now() - s.recorderLastSeen > 15 * 60000;
+    const stale = Date.now() - s.recorderLastSeen > 25 * 60000; // numbers refresh every 10 min and the host takes a few more to show them, so 15 min gave false alarms
     el("updated").textContent = stale ? "Recorder stopped " + ago(s.recorderLastSeen) : "Updated " + ago(s.updated);
     el("updated").className = "updated" + (stale ? " stale" : "");
     el("coins").textContent = s.coins.toLocaleString(); el("potCoins").textContent = s.potCoins.toLocaleString();

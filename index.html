@@ -45,29 +45,28 @@
 <body>
 <main>
   <header><h1>Mayhem monitor</h1><div class="updated" id="updated">Loading…</div></header>
-  <p class="timer">Round 7 running for <b id="timer">–</b></p>
+  <p class="timer">Round 8 running for <b id="timer">–</b></p>
 
   <div class="big">
     <div><b id="coins">–</b><span>Mayhem coins</span></div>
     <div><b id="potCoins">–</b><span>Pot reached 0.5 SOL</span></div>
-    <div><b id="done">–</b><span>Real-price trades done</span></div>
+    <div><b id="done">–</b><span>Exact trades done</span></div>
   </div>
 
   <h2>Running total per bot (SOL)</h2>
   <div id="chart1"></div>
-  <p class="note"><span class="key dash"></span>Original method &nbsp; <span class="key"></span>Real prices, pot limit (harsh)</p>
+  <p class="note"><span class="key dash"></span>Original method &nbsp; <span class="key"></span>Exact</p>
   <table>
-    <thead><tr><th>Bot</th><th>Original method</th><th>Real, kind</th><th>Real, harsh</th></tr></thead>
+    <thead><tr><th>Bot</th><th>Original method</th><th>Exact</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
-  <p class="note">Totals in SOL (0.1 SOL per trade unless the bot's name says otherwise); under each, trades won out of trades finished. Every bot buys at $2K–4K once a coin has enough early trades (Quality: 15+ trades by 10 seconds; Quantity: 10+ by 15 seconds), stops at a 60% loss and is out after 5 minutes.</p>
-  <p class="note"><b>Original method</b> is the bot exactly as first built: it reads the formula market cap and assumes every sale is paid in full. That method is wrong on Mayhem coins. <b>Real</b> is the same rule on the real price, where a sale can never take out more SOL than the pot holds. <b>Harsh</b> pays you only from the SOL recorded in the pot; <b>kind</b> counts your own 0.1 SOL as still sitting in the pot. The truth is between those two.</p>
-  <p class="note">Two newer bots run on real prices only (added about 20 minutes into the round). <b>Half at 2x, rest to $15K</b> buys like Quality, sells half once the price has doubled (that half returns the stake) and lets the rest ride to $15K or the 5-minute mark. <b>Avoid rules, sell when pot falls</b> buys like Quality but only when the pot already holds at least 0.1 SOL, has no price target, and sells when the pot has dropped 30% from its highest since the buy.</p>
-  <p class="note">The last four test one question: is it better to build a 0.1 SOL position in two steps? All four buy like Quality and sell everything 20 seconds after the first buy. <b>0.1 at once</b> and <b>0.05 only</b> are the comparison. <b>Add 0.05 if up after 10 s</b> buys 0.05, then another 0.05 ten seconds later only if price and pot are no lower than at the first buy. <b>Add 0.05 on a 30% dip</b> buys 0.05, then another 0.05 if the price falls 30% within 3 to 15 seconds. Their totals count the SOL actually put in.</p>
+  <p class="note">Totals in SOL at 0.1 SOL per trade; under each, trades won out of trades finished. Every bot buys at $2K–4K once a coin has enough early trades (Quality: 15+ trades by 10 seconds; Quantity: 10+ by 15 seconds), stops at a 60% loss and is out after 5 minutes.</p>
+  <p class="note"><b>Exact</b> reads the coin's true price from the chain after every trade and pays each buy and sale with pump.fun's own formula, with the 1.25% fee each way and never more than the pot holds. Real sales made at $9K or more were checked against this and were paid in full. <b>Original method</b> is the bot as first built, reading a market cap formula that is wrong on Mayhem coins; it is shown only for comparison.</p>
+  <p class="note"><b>Half at 2x, rest to $15K</b> sells half once the price is double what was paid and lets the rest ride to $15K or the 5-minute mark. <b>Sell when pot falls 30%</b> buys only when the pot already holds 0.1 SOL, has no price target, and sells when the pot has dropped 30% from its high.</p>
 
   <h2>Win rate by pot size when buying</h2>
   <div id="chart2"></div>
-  <p class="note">Trades of the real-price "Quantity, sell all above $9K" bot (kind case), grouped by how much real SOL was in the pot at the moment it bought.</p>
+  <p class="note">Trades of the exact "Quantity, sell all above $9K" bot, grouped by how much real SOL was in the pot at the moment it bought.</p>
 
   <h2>Pot vs price for coins that passed $9K</h2>
   <div id="chart3"></div>
@@ -126,7 +125,7 @@ async function load() {
     const cell = (v, won, n) => v == null ? "<td>–</td>" : `<td class="${cls(v)}">${sol(v)}<small>${won} of ${n} won</small></td>`;
     el("done").textContent = s.rules.reduce((a, r) => a + r.real.n, 0).toLocaleString();
     el("chart1").innerHTML = lineChart(s.rules.flatMap((r, i) => [...(r.orig ? [{ series: r.orig.series, color: COLORS[i], dash: true }] : []), { series: r.real.series, color: COLORS[i] }]), START ?? Date.now());
-    el("rows").innerHTML = s.rules.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td>${r.orig ? cell(r.orig.pnl, r.orig.won, r.orig.n) : "<td>–</td>"}${cell(r.real.kind, r.real.wonKind, r.real.n)}${cell(r.real.pnl, r.real.won, r.real.n)}</tr>`).join("");
+    el("rows").innerHTML = s.rules.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td>${r.orig ? cell(r.orig.pnl, r.orig.won, r.orig.n) : "<td>–</td>"}${cell(r.real.pnl, r.real.won, r.real.n)}</tr>`).join("");
     el("chart2").innerHTML = barChart(s.buckets);
     el("chart3").innerHTML = scatterChart(s.scatter);
   } catch { el("updated").textContent = "Could not load data"; }

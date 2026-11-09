@@ -62,6 +62,7 @@
   </table>
   <p class="note">Totals in SOL at 0.1 SOL per trade; under each, trades won out of trades finished. Every bot buys at $2K–4K once a coin has enough early trades (Quality: 15+ trades by 10 seconds; Quantity: 10+ by 15 seconds), stops at a 60% loss and is out after 5 minutes.</p>
   <p class="note"><b>Original method</b> is the bot exactly as first built: it reads the formula market cap and assumes every sale is paid in full. That method is wrong on Mayhem coins. <b>Real</b> is the same rule on the real price, where a sale can never take out more SOL than the pot holds. <b>Harsh</b> pays you only from the SOL recorded in the pot; <b>kind</b> counts your own 0.1 SOL as still sitting in the pot. The truth is between those two.</p>
+  <p class="note">Two newer bots run on real prices only (added about 20 minutes into the round). <b>Half at 2x, rest to $15K</b> buys like Quality, sells half once the price has doubled (that half returns the stake) and lets the rest ride to $15K or the 5-minute mark. <b>Avoid rules, sell when pot falls</b> buys like Quality but only when the pot already holds at least 0.1 SOL, has no price target, and sells when the pot has dropped 30% from its highest since the buy.</p>
 
   <h2>Win rate by pot size when buying</h2>
   <div id="chart2"></div>
@@ -74,7 +75,7 @@
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
 </main>
 <script>
-const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6"];
+const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2"];
 const el = (id) => document.getElementById(id);
 const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);
@@ -123,8 +124,8 @@ async function load() {
     el("coins").textContent = s.coins.toLocaleString(); el("potCoins").textContent = s.potCoins.toLocaleString();
     const cell = (v, won, n) => v == null ? "<td>–</td>" : `<td class="${cls(v)}">${sol(v)}<small>${won} of ${n} won</small></td>`;
     el("done").textContent = s.rules.reduce((a, r) => a + r.real.n, 0).toLocaleString();
-    el("chart1").innerHTML = lineChart(s.rules.flatMap((r, i) => [{ series: r.orig.series, color: COLORS[i], dash: true }, { series: r.real.series, color: COLORS[i] }]), START ?? Date.now());
-    el("rows").innerHTML = s.rules.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td>${cell(r.orig.pnl, r.orig.won, r.orig.n)}${cell(r.real.kind, r.real.wonKind, r.real.n)}${cell(r.real.pnl, r.real.won, r.real.n)}</tr>`).join("");
+    el("chart1").innerHTML = lineChart(s.rules.flatMap((r, i) => [...(r.orig ? [{ series: r.orig.series, color: COLORS[i], dash: true }] : []), { series: r.real.series, color: COLORS[i] }]), START ?? Date.now());
+    el("rows").innerHTML = s.rules.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td>${r.orig ? cell(r.orig.pnl, r.orig.won, r.orig.n) : "<td>–</td>"}${cell(r.real.kind, r.real.wonKind, r.real.n)}${cell(r.real.pnl, r.real.won, r.real.n)}</tr>`).join("");
     el("chart2").innerHTML = barChart(s.buckets);
     el("chart3").innerHTML = scatterChart(s.scatter);
   } catch { el("updated").textContent = "Could not load data"; }

@@ -58,7 +58,7 @@
     <thead><tr><th>Bot</th><th>Done</th><th>Profitable</th><th>Open</th><th>Total (SOL)</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
-  <p class="note">Every bot buys 0.1 SOL at $2K–4K after second 15 (15+ trades by then; Quantity: 10+). Baseline ignores the pot. Pot minimum needs 0.5+ SOL in the pot. Pot growing needs the pot up 10% in the last 10 seconds. Ride the pot buys like Pot growing and sells when the pot falls 20% from its peak (up to 15 minutes). The others sell at $20K. All use a 60% stop-loss. Fills are realistic: no sell can take out more than the pot holds. Auto trades a pretend 0.3 SOL wallet and copies the best pot bot.</p>
+  <p class="note">Every bot buys 0.1 SOL at $2K–4K after second 15 (15+ trades by then; Quantity: 10+). Baseline ignores the pot. Pot minimum needs 0.5+ SOL in the pot. Pot growing needs the pot up 10% in the last 10 seconds. Ride the pot buys like Pot growing and sells when the pot falls 20% from its peak (up to 15 minutes). Baseline, Pot minimum, Pot growing and Quantity + pot sell at $20K. The four "+ pot" bots at the bottom (Quality = 15+ trades by 10s, Quantity = 10+ by 15s) need a 0.5+ SOL pot and sell at $9K, or half at $9K and half at $15K. All use a 60% stop-loss. Fills are realistic: no sell can take out more than the pot holds. Auto trades a pretend 0.3 SOL wallet and copies the best pot bot.</p>
 
   <h2>Win rate by pot size when buying</h2>
   <div id="chart2"></div>
@@ -68,16 +68,17 @@
   <div id="chart3"></div>
   <p class="note">Each dot is a coin at its highest market cap this round. High dots had real money behind the price; dots near the bottom were a mirage.</p>
 
-  <h2>Same trades at 0.005 SOL</h2>
+  <h2>Shown price vs what the pot really pays</h2>
   <table>
-    <thead><tr><th>Bot</th><th>Total at 0.005</th><th>Total at 0.1</th></tr></thead>
+    <thead><tr><th>Bot</th><th>Shown price</th><th>Pot pays (0.1)</th><th>Pot pays (0.005)</th></tr></thead>
     <tbody id="sizeRows"></tbody>
   </table>
+  <p class="note">Totals in SOL for the same trades. "Shown price" sells at the market cap on screen; "Pot pays" is what the pot could actually pay out at that moment, at 0.1 or 0.005 SOL per trade.</p>
 
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
 </main>
 <script>
-const COLORS = ["#2a78d6", "#0f9d58", "#d97706", "#8b5cf6", "#db2777", "#0891b2"];
+const COLORS = ["#2a78d6", "#0f9d58", "#d97706", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c"];
 const el = (id) => document.getElementById(id);
 const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);
@@ -130,7 +131,7 @@ async function load() {
     el("rows").innerHTML = s.bots.map((r, i) => `<tr><td><span class="sw" style="background:${COLORS[i]}"></span>${r.label}</td><td>${r.n}</td><td>${r.profitable}</td><td>${r.open}</td><td class="${cls(r.pnl)}">${sol(r.pnl)}<br><small class="usd">${(r.pnl < 0 ? "−$" : "+$") + Math.abs(r.pnl * SOLUSD).toFixed(2)}</small></td></tr>`).join("");
     el("chart2").innerHTML = barChart(s.buckets);
     el("chart3").innerHTML = scatterChart(s.scatter);
-    el("sizeRows").innerHTML = s.bots.map((r) => `<tr><td>${r.label}</td><td class="${cls(r.pnl005)}">${sol(r.pnl005)}</td><td class="${cls(r.pnl)}">${sol(r.pnl)}</td></tr>`).join("");
+    el("sizeRows").innerHTML = s.bots.map((r) => `<tr><td>${r.label}</td><td class="${cls(r.naive)}">${sol(r.naive ?? 0)}</td><td class="${cls(r.pnl)}">${sol(r.pnl)}</td><td class="${cls(r.pnl005)}">${sol(r.pnl005)}</td></tr>`).join("");
   } catch { el("updated").textContent = "Could not load data"; }
 }
 load(); setInterval(load, 60000);

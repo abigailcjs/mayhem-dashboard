@@ -65,6 +65,7 @@
     <p class="note"><b>★ Strictest</b> (started 20:28 UTC on 9 Nov) also need two more things. <b>Bot quiet:</b> pump.fun's robot has not traded for half a second. <b>6 people:</b> at least 6 different people have already traded the coin (8 for the Quantity bot, which has no quiet rule).</p>
     <p class="note">In a replay of the 19 hours before, the strictest sign rule made 52 trades and won about 1 in 3. Those rules were found by looking back, so this is the test of whether they hold.</p>
     <p class="note">Two more bots started 21:38 UTC on 9 Nov, each with the PERSON rule plus one new idea. <b>Bought on a dip:</b> the price has fallen to under 57% of the coin's highest price so far. <b>Not frantic:</b> fewer than 15 trades in the last 5 seconds. In the same replay the dip rule made 102 trades and won 29%; the not-frantic rule made 207 and won 25%. Both are hints, not proof.</p>
+    <p class="note">Two more started 02:21 UTC on 10 Nov: the dip rule, but <b>selling half at $9K and half at $15K</b>, once on its own and once also needing 6 people. They were the best of 224 mixes tried on the 5 hours before (22 and 29 trades, about +1 SOL each). Picking the best after the fact always flatters it, so these two are the fair test.</p>
   </section>
 
   <h2 class="sec">Round 9 bots: no extra filter</h2>
@@ -149,7 +150,7 @@ async function load() {
     el("done").textContent = s.rules.reduce((a, r) => a + r.real.n, 0).toLocaleString();
     // Picky bots (PERSON rules) are the first section (Charles, 2026-11-10); the eight round-9 bots follow.
     // Each bot keeps its own colour; the table rows are sorted so the most profitable bot is on top.
-    const isPicky = (r) => /_p(q|8|d|c)?$/.test(r.key), isStrict = (r) => /_p(q|8)$/.test(r.key);
+    const isPicky = (r) => /_p(q|8|d|c|d6)?$/.test(r.key), isStrict = (r) => /_p(q|8)$/.test(r.key);
     const tint = (list) => list.map((r, i) => ({ ...r, color: COLORS[i % COLORS.length] })), best = (list) => [...list].sort((a, b) => b.real.pnl - a.real.pnl);
     const main = tint(s.rules.filter((r) => !isPicky(r))), picky = tint(s.rules.filter(isPicky));
     el("chart1").innerHTML = lineChart(main.flatMap((r) => [...(r.orig ? [{ series: r.orig.series, color: r.color, dash: true }] : []), { series: r.real.series, color: r.color }]), START ?? Date.now());

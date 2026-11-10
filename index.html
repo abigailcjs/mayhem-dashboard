@@ -60,7 +60,7 @@
       <thead><tr><th>Bot</th><th>Done</th><th>Won</th><th>Avg per trade</th><th>Total (SOL)</th></tr></thead>
       <tbody id="rowsP"></tbody>
     </table>
-    <p class="note">The three cards add up the five <b>strictest</b> bots (marked ★). They get about 3 trades an hour, so a fair read takes days. Each list puts the bot with the best total first. What "the sign" means is explained in the next section.</p>
+    <p class="note">The three cards add up the five <b>strictest</b> bots (marked ★). They get about 3 trades an hour, so a fair read takes days. The list puts the bot with the best total first. What "the sign" means is explained at the bottom.</p>
     <p class="note"><b>Same start for all:</b> every bot here is shown from 20:06 UTC on 9 Nov so they can be compared. A bot that went live later has the earlier part filled in by <b>replaying</b> the recorded trades through the same rules. The small number under Done says how many of its trades are replayed, not live.</p>
     <p class="note"><b>PERSON</b> means the last trade before the bot buys was made by a human, not by pump.fun's own robot. If the robot made it, the coin is skipped. Three bots with only this rule started 20:06 UTC on 9 Nov.</p>
     <p class="note"><b>★ Strictest</b> (live since 20:28 UTC on 9 Nov) also need two more things. <b>Bot quiet:</b> pump.fun's robot has not traded for half a second. <b>6 people:</b> at least 6 different people have already traded the coin (8 for the Quantity bot, which has no quiet rule).</p>
@@ -69,36 +69,12 @@
     <p class="note">Two more went live 02:21 UTC on 10 Nov: the dip rule, but <b>selling half at $9K and half at $15K</b>, once on its own and once also needing 6 people. They were the best of 224 mixes tried on the 5 hours before. Their replayed trades cover those same hours, so that part is <b>bound to look good</b>: they were picked because it did. Only their trades after 02:21 are a fair test.</p>
     <p class="note">Four more went live 03:48 UTC on 10 Nov: the same picky buying rules, but <b>selling everything at $15K</b> instead of $9K or in halves. They win less often and win bigger when they do. Looking back, this beat selling in halves over the 7 hours before, but <b>lost to it on every rule in the 19 hours before that</b>, so the replayed part proves nothing. Selling at $20K was also checked and was worse: too few coins get there inside the 5 minutes.</p>
     <p class="note">Two more went live 04:30 UTC on 10 Nov to test <b>a longer time limit</b>: the plain PERSON rule, held for up to <b>15 minutes</b> instead of 5, one selling at $15K and one at $20K. The recorder only keeps about 5 minutes of each coin, so these could not be replayed: they start empty, with live trades only. Compare them with "Sign, sell all above $15K, PERSON completed", which is the same rule with the 5-minute limit. A look at the chain says to expect little: of 112 coins where a picky bot ran out the clock, none went on to reach $15K later.</p>
+    <p class="note">Every bot buys 0.1 SOL, stops at a 60% loss and is out after 5 minutes (15 for the two longer-limit bots). Prices and payouts are exact: the coin's true price from the chain after every trade, pump.fun's own formula, the 1.25% fee each way, and never more than the pot holds.</p>
+    <p class="note"><b>The sign</b> is what coins that reached $9K had in common beforehand: pump.fun's bot has put in at least 0.2 SOL more than it has taken out, the pot holds 0.4 SOL or more, and the price is $2K–5K. The bots look for it from 15 seconds after launch until the coin is a minute old. In past coins the sign went on to $9K about one time in four, against one in fifteen for all coins. It was found by looking back, so this round is the test of whether it holds.</p>
+    <p class="note">The two <b>Old Quantity</b> bots do not use the sign: they buy at $2K–4K once a coin has 10 or more trades in its first 15 seconds.</p>
   </section>
 
-  <h2 class="sec">Round 9 bots: no extra filter</h2>
-  <p class="timer">Round 9 running for <b id="timer">–</b></p>
-
-  <div class="big">
-    <div><b id="coins">–</b><span>Mayhem coins</span></div>
-    <div><b id="potCoins">–</b><span>Pot reached 0.5 SOL</span></div>
-    <div><b id="done">–</b><span>Exact trades done</span></div>
-  </div>
-
-  <h2>Running total per bot (SOL)</h2>
-  <div id="chart1"></div>
-  <table>
-    <thead><tr><th>Bot</th><th>Done</th><th>Won</th><th>Total (SOL)</th></tr></thead>
-    <tbody id="rows"></tbody>
-  </table>
-  <p class="note">Every bot buys 0.1 SOL, stops at a 60% loss and is out after 5 minutes. Prices and payouts are exact: the coin's true price from the chain after every trade, pump.fun's own formula, the 1.25% fee each way, and never more than the pot holds.</p>
-  <p class="note"><b>The sign</b> is what coins that reached $9K had in common beforehand: pump.fun's bot has put in at least 0.2 SOL more than it has taken out, the pot holds 0.4 SOL or more, and the price is $2K–5K. The bots look for it from 15 seconds (or 30 seconds) after launch until the coin is a minute old. In past coins the sign went on to $9K about one time in four, against one in fifteen for all coins. It was found by looking back, so this round is the test of whether it holds.</p>
-  <p class="note"><b>Looser sign</b> needs only 0.1 SOL from the bot, 0.3 SOL in the pot and a price of $2K–4K. The two <b>Old rule</b> bots buy at $2K–4K after enough early trades (Quantity: 10+ by 15 seconds; Quality: 15+ by 10 seconds) with no sign, for comparison.</p>
-
-  <h2>Win rate by pot size when buying</h2>
-  <div id="chart2"></div>
-  <p class="note">Trades of the "Sign from 15 s, sell all above $9K" bot, grouped by how much real SOL was in the pot at the moment it bought.</p>
-
-  <h2>Pot vs price for coins that passed $9K</h2>
-  <div id="chart3"></div>
-  <p class="note">Each dot is a coin at its highest market cap this round. High dots had real money behind the price; dots near the bottom were a mirage.</p>
-
-  <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
+  <footer>Watch only. No real trades are placed. The eight bots with no extra filter still run in the background; they are no longer shown here. Older rounds are kept in the data.</footer>
 </main>
 <script>
 const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c", "#0d9488", "#a16207", "#7c3aed", "#475569", "#c026d3", "#16a34a", "#b45309"]; const OLD_COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
@@ -107,9 +83,9 @@ const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);
 const ago = (t) => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : Math.round(m / 60) + " h ago"; };
 const tl = (t) => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-let START = null, SOLUSD = 0, P_START = null;
+let P_START = null;
 const clock = (from) => { const s = Math.max(0, Math.floor((Date.now() - from) / 1000)); const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60); return (d ? d + "d " : "") + h + "h " + String(m).padStart(2, "0") + "m " + String(s % 60).padStart(2, "0") + "s"; };
-function tick() { if (START) el("timer").textContent = clock(START); if (P_START) el("pTimer").textContent = clock(P_START); }
+function tick() { if (P_START) el("pTimer").textContent = clock(P_START); }
 setInterval(tick, 1000);
 
 function lineChart(rows, t0) {
@@ -122,42 +98,19 @@ function lineChart(rows, t0) {
   const msg = empty ? `<text x="${(L + W - R) / 2}" y="${Y(0) - 8}" text-anchor="middle" class="ax">Lines appear as the first trades finish</text>` : "";
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Running total in SOL per bot">${ticks}<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" class="zero"/>${lines}${msg}<text x="${L}" y="${H - 6}" class="ax">${tl(t0)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end" class="ax">${tl(t1)}</text></svg>`;
 }
-function barChart(buckets) {
-  const W = 520, H = 190, L = 42, B = 40, T = 14, bw = (W - L - 10) / buckets.length;
-  const Y = (v) => T + (1 - v) * (H - T - B);
-  const grid = [0, 0.5, 1].map((v) => `<line x1="${L}" x2="${W - 8}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end" class="ax">${v * 100}%</text>`).join("");
-  const bars = buckets.map((b, i) => { const rate = b.n ? b.prof / b.n : 0, x = L + i * bw + bw * 0.18, w = bw * 0.64;
-    return `<rect class="bar" x="${x}" y="${Y(rate)}" width="${w}" height="${Y(0) - Y(rate)}" rx="3"/><text class="lbl" x="${x + w / 2}" y="${Y(rate) - 4}" text-anchor="middle">${b.n ? Math.round(rate * 100) + "%" : "–"}</text><text class="ax" x="${x + w / 2}" y="${H - 22}" text-anchor="middle">${b.label} SOL</text><text class="ax" x="${x + w / 2}" y="${H - 8}" text-anchor="middle">${b.n} trades</text>`; }).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Win rate by pot size">${grid}${bars}</svg>`;
-}
-function scatterChart(pts) {
-  const W = 520, H = 220, L = 42, R = 8, T = 10, B = 30;
-  if (!pts.length) return `<svg viewBox="0 0 ${W} 60" style="width:100%;height:auto"><text x="${W / 2}" y="34" text-anchor="middle" class="ax">No coin has passed $9K yet this round</text></svg>`;
-  const xs = pts.map((p) => Math.log10(p[0])), x0 = Math.log10(9000), x1 = Math.max(x0 + 0.5, ...xs), yMax = Math.max(1, ...pts.map((p) => p[1])) * 1.1;
-  const X = (v) => L + ((Math.log10(v) - x0) / (x1 - x0)) * (W - L - R), Y = (v) => T + (1 - v / yMax) * (H - T - B);
-  const ygrid = [0, yMax / 2, yMax / 1.1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end" class="ax">${v.toFixed(1)}</text>`).join("");
-  const xt = [9000, 20000, 50000, 100000, 250000].filter((v) => Math.log10(v) <= x1).map((v) => `<text x="${X(v)}" y="${H - 10}" text-anchor="middle" class="ax">$${v / 1000}K</text>`).join("");
-  const dots = pts.map((p) => `<circle cx="${X(p[0]).toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="4" fill="${p[1] >= 0.5 ? "#0f9d58" : "#d97706"}" fill-opacity="0.75"/>`).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Pot size versus market cap">${ygrid}<text x="${L}" y="${T + 2}" class="ax" dy="-2">pot SOL</text>${dots}${xt}</svg>`;
-}
 
 async function load() {
   try {
     const s = await (await fetch("stats.json?" + Date.now(), { cache: "no-store" })).json();
-    START = s.round?.start ?? null; SOLUSD = s.solUsd ?? 0; tick();
     const stale = Date.now() - s.recorderLastSeen > 25 * 60000; // numbers refresh every 10 min and the host takes a few more to show them, so 15 min gave false alarms
     el("updated").textContent = stale ? "Recorder stopped " + ago(s.recorderLastSeen) : "Updated " + ago(s.updated);
     el("updated").className = "updated" + (stale ? " stale" : "");
-    el("coins").textContent = s.coins.toLocaleString(); el("potCoins").textContent = s.potCoins.toLocaleString();
-    const cell = (v, won, n) => v == null ? "<td>–</td>" : `<td class="${cls(v)}">${sol(v)}<small>${won} of ${n} won</small></td>`;
-    el("done").textContent = s.rules.reduce((a, r) => a + r.real.n, 0).toLocaleString();
-    // Picky bots (PERSON rules) are the first section (Charles, 2026-11-10); the eight round-9 bots follow.
+    // Only the picky bots (PERSON rules) are shown (Charles, 2026-11-10: everything below them removed). The eight
+    // unfiltered round-9 bots keep running and stay in stats.json; they are just not drawn.
     // Each bot keeps its own colour; the table rows are sorted so the most profitable bot is on top.
     const isPicky = (r) => /_p(q|8|d|c|d6)?$/.test(r.key), isStrict = (r) => /_p(q|8)$/.test(r.key);
     const tint = (list) => list.map((r, i) => ({ ...r, color: COLORS[i % COLORS.length] })), best = (list) => [...list].sort((a, b) => b.real.pnl - a.real.pnl);
-    const main = tint(s.rules.filter((r) => !isPicky(r))), picky = tint(s.rules.filter(isPicky));
-    el("chart1").innerHTML = lineChart(main.flatMap((r) => [...(r.orig ? [{ series: r.orig.series, color: r.color, dash: true }] : []), { series: r.real.series, color: r.color }]), START ?? Date.now());
-    el("rows").innerHTML = best(main).map((r) => `<tr><td><span class="sw" style="background:${r.color}"></span>${r.label}</td><td>${r.real.n}</td><td>${r.real.won}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`).join("");
+    const picky = tint(s.rules.filter(isPicky));
     el("picky").hidden = !picky.length;
     if (picky.length) {
       const strict = picky.filter(isStrict), sum = (k) => strict.reduce((a, r) => a + r.real[k], 0), n = sum("n"), won = sum("won"), tot = sum("pnl");
@@ -168,8 +121,6 @@ async function load() {
       el("rowsP").innerHTML = best(picky).map((r) => { const a = r.real.n ? r.real.pnl / r.real.n / 0.1 : null; // every trade puts in 0.1 SOL
         return `<tr><td><span class="sw" style="background:${r.color}"></span>${isStrict(r) ? "★ " : ""}${r.label}</td><td>${r.real.n}${r.real.replay ? `<small>${r.real.replay} replayed</small>` : ""}</td><td>${r.real.won}<small>${r.real.n ? Math.round(100 * r.real.won / r.real.n) + "%" : "–"}</small></td><td class="${a == null ? "" : cls(a)}">${a == null ? "–" : (a < 0 ? "−" : "+") + Math.abs(100 * a).toFixed(0) + "%"}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`; }).join("");
     }
-    el("chart2").innerHTML = barChart(s.buckets);
-    el("chart3").innerHTML = scatterChart(s.scatter);
   } catch { el("updated").textContent = "Could not load data"; }
 }
 load(); setInterval(load, 60000);

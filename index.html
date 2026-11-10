@@ -68,6 +68,7 @@
     <p class="note">Two more bots went live 21:38 UTC on 9 Nov, each with the PERSON rule plus one new idea. <b>Bought on a dip:</b> the price has fallen to under 57% of the coin's highest price so far. <b>Not frantic:</b> fewer than 15 trades in the last 5 seconds. In the same replay the dip rule made 102 trades and won 29%; the not-frantic rule made 207 and won 25%. Both are hints, not proof.</p>
     <p class="note">Two more went live 02:21 UTC on 10 Nov: the dip rule, but <b>selling half at $9K and half at $15K</b>, once on its own and once also needing 6 people. They were the best of 224 mixes tried on the 5 hours before. Their replayed trades cover those same hours, so that part is <b>bound to look good</b>: they were picked because it did. Only their trades after 02:21 are a fair test.</p>
     <p class="note">Four more went live 03:48 UTC on 10 Nov: the same picky buying rules, but <b>selling everything at $15K</b> instead of $9K or in halves. They win less often and win bigger when they do. Looking back, this beat selling in halves over the 7 hours before, but <b>lost to it on every rule in the 19 hours before that</b>, so the replayed part proves nothing. Selling at $20K was also checked and was worse: too few coins get there inside the 5 minutes.</p>
+    <p class="note">Two more went live 04:30 UTC on 10 Nov to test <b>a longer time limit</b>: the plain PERSON rule, held for up to <b>15 minutes</b> instead of 5, one selling at $15K and one at $20K. The recorder only keeps about 5 minutes of each coin, so these could not be replayed: they start empty, with live trades only. Compare them with "Sign, sell all above $15K, PERSON completed", which is the same rule with the 5-minute limit. A look at the chain says to expect little: of 112 coins where a picky bot ran out the clock, none went on to reach $15K later.</p>
   </section>
 
   <h2 class="sec">Round 9 bots: no extra filter</h2>
@@ -100,7 +101,7 @@
   <footer>Watch only. No real trades are placed. Older rounds are kept in the data.</footer>
 </main>
 <script>
-const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c", "#0d9488", "#a16207", "#7c3aed", "#475569", "#c026d3"]; const OLD_COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
+const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c", "#0d9488", "#a16207", "#7c3aed", "#475569", "#c026d3", "#16a34a", "#b45309"]; const OLD_COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
 const el = (id) => document.getElementById(id);
 const cls = (x) => x > 0 ? "pos" : x < 0 ? "neg" : "";
 const sol = (v) => (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);

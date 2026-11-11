@@ -53,7 +53,7 @@
 <body>
 <main>
   <header><h1>Mayhem monitor</h1><div class="updated" id="updated">Loading…</div></header>
-  <p class="note" id="jump" hidden><a href="#cross">New: Buy at $3K, sell at $9K ↓</a></p>
+  <p class="note" id="jump" hidden><a href="#cross">Buy at $3K, sell at $9K ↓</a></p>
   <section id="picky">
     <h2 class="sec">Picky bots: fewer trades, stricter rules</h2>
     <p class="timer">Running for <b id="pTimer">–</b></p>
@@ -68,7 +68,7 @@
       <tbody id="rowsP"></tbody>
     </table>
     <p class="note">The three cards add up the four <b>strictest</b> bots (marked ★). They get about 3 trades an hour, so a fair read takes days. The list puts the bot with the best total first. What "the sign" means is explained at the bottom.</p>
-    <p class="note"><b>Same start for all:</b> every bot here is shown from 20:06 UTC on 9 Nov so they can be compared. A bot that went live later has the earlier part filled in by <b>replaying</b> the recorded trades through the same rules. The small number under Done says how many of its trades are replayed, not live.</p>
+    <p class="note"><b>Fresh start:</b> every bot on this page was restarted from zero at <b id="rStart">–</b> (your time), with the same rules as before. Nothing here is replayed any more: every trade counted is live. Results from before the restart are kept in the data, off this page. The notes below say how each rule was found.</p>
     <p class="note"><b>PERSON</b> means the last trade before the bot buys was made by a human, not by pump.fun's own robot. If the robot made it, the coin is skipped. Every bot here uses it, plus at least one more rule.</p>
     <p class="note"><b>★ Strictest</b> (live since 20:28 UTC on 9 Nov) also need two more things. <b>Bot quiet:</b> pump.fun's robot has not traded for half a second. <b>6 people:</b> at least 6 different people have already traded the coin.</p>
     <p class="note">In a replay of the 19 hours before, the strictest sign rule made 52 trades and won about 1 in 3. Those rules were found by looking back, so this is the test of whether they hold.</p>
@@ -92,7 +92,7 @@
       <tbody id="rowsC"></tbody>
     </table>
     <p class="note">Each bot buys 0.1 SOL the <b>first time</b> a coin's price goes up through $3K, however old the coin is, and sells everything above $9K. Its rule is checked once, at that moment. If the rule fails, the coin is skipped. Same 60% stop, 5-minute limit, fees and pot limit as the bots above.</p>
-    <p class="note">Live since 06:23 UTC on 11 Nov. Everything before that, back to 20:06 UTC on 9 Nov, is <b>replayed</b> from the recordings through the same rules. These rules were not picked for looking good, so here the replayed part is a fair read.</p>
+    <p class="note">Restarted from zero with the bots above. Before the restart, over about 23,000 live and replayed trades, these five came back at 0.80 to 0.84 for every 1.00 put in.</p>
     <p class="note">The no-rule bot trades about 500 times an hour, so its total in SOL is big. Compare the bars, not the totals.</p>
   </section>
 
@@ -136,10 +136,10 @@ async function load() {
     el("picky").hidden = !picky.length;
     if (picky.length) {
       const strict = picky.filter(isStrict), sum = (k) => strict.reduce((a, r) => a + r.real[k], 0), n = sum("n"), won = sum("won"), tot = sum("pnl");
-      P_START = Date.parse("2026-11-09T20:06:34Z"); tick(); // all picky bots are filled in back to here (analysis/backfill-bots.mjs)
+      P_START = s.round.start; tick(); el("rStart").textContent = new Date(P_START).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); // round start (data/round.json)
       el("pDone").textContent = n.toLocaleString(); el("pWon").textContent = n ? won + " (" + Math.round(100 * won / n) + "%)" : "0";
       el("pTotal").textContent = sol(tot); el("pTotal").className = cls(tot);
-      el("chartP").innerHTML = lineChart(picky.map((r) => ({ series: r.real.series, color: r.color, dash: !isStrict(r) })), Date.parse("2026-11-09T20:06:00Z"));
+      el("chartP").innerHTML = lineChart(picky.map((r) => ({ series: r.real.series, color: r.color, dash: !isStrict(r) })), s.round.start);
       el("rowsP").innerHTML = best(picky).map((r) => { const a = r.real.n ? r.real.pnl / r.real.n / 0.1 : null; // every trade puts in 0.1 SOL
         return `<tr><td><span class="sw" style="background:${r.color}"></span>${isStrict(r) ? "★ " : ""}${r.label}</td><td>${r.real.n}${r.real.replay ? `<small>${r.real.replay} replayed</small>` : ""}</td><td>${r.real.won}<small>${r.real.n ? Math.round(100 * r.real.won / r.real.n) + "%" : "–"}</small></td><td class="${a == null ? "" : cls(a)}">${a == null ? "–" : (a < 0 ? "−" : "+") + Math.abs(100 * a).toFixed(0) + "%"}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`; }).join("");
     }

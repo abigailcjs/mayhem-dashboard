@@ -41,12 +41,19 @@
   svg .bar { fill: var(--accent); } svg .lbl { fill: var(--fg); font-size: 12px; }
   .key { display: inline-block; width: 22px; border-top: 2px solid var(--fg); vertical-align: middle; margin-right: 6px; } .key.dash { border-top-style: dashed; }
   td small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+  a { color: var(--accent); }
+  .bars { margin: 16px 0 6px; } .brow { margin-bottom: 12px; font-size: 14px; }
+  .track { position: relative; height: 18px; margin-top: 4px; }
+  .track i { display: block; height: 100%; min-width: 2px; background: var(--accent); border-radius: 3px; }
+  .track b { position: absolute; top: 0; padding-left: 6px; line-height: 18px; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .track::after { content: ""; position: absolute; left: 90.909%; top: -4px; bottom: -4px; border-left: 2px dashed var(--muted); } /* break-even: 1.00 on a 0 to 1.10 scale */
   footer { color: var(--muted); font-size: 12px; margin-top: 36px; }
 </style>
 </head>
 <body>
 <main>
   <header><h1>Mayhem monitor</h1><div class="updated" id="updated">Loading…</div></header>
+  <p class="note" id="jump" hidden><a href="#cross">New: Buy at $3K, sell at $9K ↓</a></p>
   <section id="picky">
     <h2 class="sec">Picky bots: fewer trades, stricter rules</h2>
     <p class="timer">Running for <b id="pTimer">–</b></p>
@@ -74,6 +81,20 @@
     <p class="note"><b>Taken out</b> 12:07 UTC on 10 Nov: every bot that was down 2 SOL or more. All five used the PERSON rule with nothing added: sell at $9K (178 trades, −3.03 SOL), half $9K / half $15K (177, −2.19), sell at $15K (179, −2.68), and the two with a 15-minute time limit (69 trades each, −2.64 and −2.52; the longer limit did not help).</p>
     <p class="note">Every bot buys 0.1 SOL, stops at a 60% loss and is out after 5 minutes. Prices and payouts are exact: the coin's true price from the chain after every trade, pump.fun's own formula, the 1.25% fee each way, and never more than the pot holds.</p>
     <p class="note"><b>The sign</b> is what coins that reached $9K had in common beforehand: pump.fun's bot has put in at least 0.2 SOL more than it has taken out, the pot holds 0.4 SOL or more, and the price is $2K–5K. The bots look for it from 15 seconds after launch until the coin is a minute old. In past coins the sign went on to $9K about one time in four, against one in fifteen for all coins. It was found by looking back, so this round is the test of whether it holds.</p>  </section>
+
+  <section id="cross" hidden>
+    <h2 class="sec">Buy at $3K, sell at $9K</h2>
+    <p class="note">What came back for every 1.00 put in, with no rule and with four rules.</p>
+    <div class="bars" id="barsC"></div>
+    <p class="note"><span class="key dash"></span>Dashed line: money back (1.00). A bar that stops short of it lost money.</p>
+    <table>
+      <thead><tr><th>Rule</th><th>Done</th><th>Won</th><th>Total (SOL)</th></tr></thead>
+      <tbody id="rowsC"></tbody>
+    </table>
+    <p class="note">Each bot buys 0.1 SOL the <b>first time</b> a coin's price goes up through $3K, however old the coin is, and sells everything above $9K. Its rule is checked once, at that moment. If the rule fails, the coin is skipped. Same 60% stop, 5-minute limit, fees and pot limit as the bots above.</p>
+    <p class="note">Live since 06:23 UTC on 11 Nov. Everything before that, back to 20:06 UTC on 9 Nov, is <b>replayed</b> from the recordings through the same rules. These rules were not picked for looking good, so here the replayed part is a fair read.</p>
+    <p class="note">The no-rule bot trades about 500 times an hour, so its total in SOL is big. Compare the bars, not the totals.</p>
+  </section>
 
   <footer>Watch only. No real trades are placed. Dropped bots no longer trade (one, the plain PERSON bot, still runs unseen as a measuring stick); their past trades and older rounds are kept in the data.</footer>
 </main>
@@ -121,6 +142,15 @@ async function load() {
       el("chartP").innerHTML = lineChart(picky.map((r) => ({ series: r.real.series, color: r.color, dash: !isStrict(r) })), Date.parse("2026-11-09T20:06:00Z"));
       el("rowsP").innerHTML = best(picky).map((r) => { const a = r.real.n ? r.real.pnl / r.real.n / 0.1 : null; // every trade puts in 0.1 SOL
         return `<tr><td><span class="sw" style="background:${r.color}"></span>${isStrict(r) ? "★ " : ""}${r.label}</td><td>${r.real.n}${r.real.replay ? `<small>${r.real.replay} replayed</small>` : ""}</td><td>${r.real.won}<small>${r.real.n ? Math.round(100 * r.real.won / r.real.n) + "%" : "–"}</small></td><td class="${a == null ? "" : cls(a)}">${a == null ? "–" : (a < 0 ? "−" : "+") + Math.abs(100 * a).toFixed(0) + "%"}</td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`; }).join("");
+    }
+    // "Buy at $3K, sell at $9K" (Charles, 2026-11-11): the c3_ bots, one bar each = SOL back per 1.00 SOL put in.
+    const cross = s.rules.filter((r) => /^c3_/.test(r.key));
+    el("cross").hidden = el("jump").hidden = !cross.length;
+    if (cross.length) {
+      const back = (r) => r.real.n ? 1 + r.real.pnl / (r.real.n * 0.1) : null; // every trade puts in 0.1 SOL
+      el("barsC").innerHTML = cross.map((r) => { const v = back(r), w = v == null ? 0 : Math.min(100, Math.max(0, 100 * v / 1.1));
+        return `<div class="brow">${r.label}<div class="track"><i style="width:${w.toFixed(1)}%"></i><b style="left:${w.toFixed(1)}%">${v == null ? "No trades yet" : v.toFixed(2)}</b></div></div>`; }).join("");
+      el("rowsC").innerHTML = cross.map((r) => `<tr><td>${r.label}</td><td>${r.real.n.toLocaleString()}${r.real.replay ? `<small>${r.real.replay.toLocaleString()} replayed</small>` : ""}</td><td>${r.real.won.toLocaleString()}<small>${r.real.n ? Math.round(100 * r.real.won / r.real.n) + "%" : "–"}</small></td><td class="${cls(r.real.pnl)}">${sol(r.real.pnl)}</td></tr>`).join("");
     }
   } catch { el("updated").textContent = "Could not load data"; }
 }

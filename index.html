@@ -29,7 +29,14 @@
   .big span { color: var(--muted); font-size: 13px; }
   h2 { font-size: 15px; margin: 28px 0 6px; }
   h2.sec { font-size: 18px; margin: 44px 0 0; padding-top: 24px; border-top: 2px solid var(--fg); letter-spacing: -0.01em; }
-  #picky h2.sec { margin-top: 18px; padding-top: 0; border-top: 0; }
+  #live h2.sec { margin-top: 18px; padding-top: 0; border-top: 0; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0 4px; }
+  .steps div { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font-size: 12px; line-height: 1.3; color: var(--muted); }
+  .steps div b { display: block; font-size: 13px; }
+  .steps .done b { color: var(--good); } .steps .now { border: 2px solid var(--fg); color: var(--fg); padding: 6px 7px; }
+  .big.two { grid-template-columns: repeat(3, 1fr); }
+  .big b.small { font-size: 20px; }
+  tr.realrow td { font-weight: 600; }
   table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   th, td { padding: 9px 3px; border-bottom: 1px solid var(--line); text-align: right; font-size: 15px; }
   th { color: var(--muted); font-weight: 500; font-size: 13px; } th:first-child, td:first-child { text-align: left; }
@@ -53,7 +60,28 @@
 <body>
 <main>
   <header><h1>Mayhem monitor</h1><div class="updated" id="updated">Loading…</div></header>
-  <p class="note" id="jump" hidden><a href="#cross">Buy at $3K, sell at $9K ↓</a></p>
+  <p class="note" id="jump" hidden><a href="#picky">Fake bots ↓</a> · <a href="#cross">Buy at $3K, sell at $9K ↓</a></p>
+  <section id="live" hidden>
+    <h2 class="sec">Real bot: "Sign, $9K, PERSON + bought on a dip"</h2>
+    <p class="timer" id="lStatus">–</p>
+    <div class="steps" id="lSteps"></div>
+    <h2>Real against fake</h2>
+    <table>
+      <thead><tr><th>Who</th><th>Done</th><th>Won</th><th>Back per 1.00</th><th>Total (SOL)</th></tr></thead>
+      <tbody id="rowsL"></tbody>
+    </table>
+    <p class="note" id="lFakeNote"></p>
+    <h2>If real orders fill later than the fake bot's 1 second</h2>
+    <div class="bars" id="barsL"></div>
+    <p class="note"><span class="key dash"></span>Dashed line: money back (1.00). <span id="lLateNote"></span></p>
+    <h2>Speed measured so far</h2>
+    <div class="big two">
+      <div><b class="small" id="lFeed">–</b><span>Our feed sees a trade after</span></div>
+      <div><b class="small" id="lPractice">–</b><span>Practice orders accepted</span></div>
+      <div><b class="small" id="lBuild">–</b><span>To build and check one</span></div>
+    </div>
+    <p class="note" id="lSpeedNote"></p>
+  </section>
   <section id="picky">
     <h2 class="sec">Picky bots: fewer trades, stricter rules</h2>
     <p class="timer">Running for <b id="pTimer">–</b></p>
@@ -96,7 +124,7 @@
     <p class="note">The no-rule bot trades about 500 times an hour, so its total in SOL is big. Compare the bars, not the totals.</p>
   </section>
 
-  <footer>Watch only. No real trades are placed. Dropped bots no longer trade (one, the plain PERSON bot, still runs unseen as a measuring stick); their past trades and older rounds are kept in the data.</footer>
+  <footer>No real trades are placed until the real bot reaches step 4 and Charles switches it on. Fake bots never trade real money. Dropped bots no longer trade (one, the plain PERSON bot, still runs unseen as a measuring stick); their past trades and older rounds are kept in the data.</footer>
 </main>
 <script>
 const COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#ea580c", "#4f46e5", "#be123c", "#0d9488", "#a16207", "#7c3aed", "#475569", "#c026d3", "#16a34a", "#b45309"]; const OLD_COLORS = ["#2a78d6", "#d97706", "#0f9d58", "#8b5cf6", "#db2777", "#0891b2", "#65a30d", "#9ca3af", "#ea580c", "#4f46e5"];
@@ -127,6 +155,32 @@ async function load() {
     const stale = Date.now() - s.recorderLastSeen > 25 * 60000; // numbers refresh every 10 min and the host takes a few more to show them, so 15 min gave false alarms
     el("updated").textContent = stale ? "Recorder stopped " + ago(s.recorderLastSeen) : "Updated " + ago(s.updated);
     el("updated").className = "updated" + (stale ? " stale" : "");
+    // REAL BOT (Charles, 2026-11-12): step, real against fake, late-fill replay, speed measured. s.live from analysis/export.mjs.
+    const L = s.live; el("live").hidden = !L;
+    if (L) {
+      const STEPS = ["Alerts", "Speed test", "Dry run", "Live, 0.05 SOL"];
+      el("lStatus").innerHTML = `<b>Step ${L.step} of 4: ${L.stepName}.</b> The bot is <b>${L.botOn ? "ON" : "OFF"}</b>. ${L.real ? "" : "No real trades yet."} Telegram alerts: <b>${L.alertsOn ? "on" : "off"}</b>.`;
+      el("lSteps").innerHTML = STEPS.map((n, i) => `<div class="${i + 1 < L.step ? "done" : i + 1 === L.step ? "now" : ""}"><b>${i + 1 < L.step ? "✓ " : ""}${i + 1}</b>${n}</div>`).join("");
+      const back = (x) => x && x.stake > 0 ? 1 + x.pnl / x.stake : null;
+      const row = (who, x, extra = "") => { const b = back(x);
+        return `<tr${extra}><td>${who}</td><td>${x ? x.n : "–"}</td><td>${x ? x.won + `<small>${x.n ? Math.round(100 * x.won / x.n) + "%" : "–"}</small>` : "–"}</td><td class="${b == null ? "" : cls(+b.toFixed(2) - 1)}">${b == null ? "–" : b.toFixed(2)}</td><td class="${x ? cls(x.pnl) : ""}">${x ? sol(x.pnl) : "–"}</td></tr>`; };
+      el("rowsL").innerHTML = row("Real bot", L.real, ' class="realrow"') + row("Fake, this round", L.fakeRound) + row("Fake, since 9 Nov", L.fakeSince9Nov);
+      const f = L.fakeSince9Nov;
+      el("lFakeNote").innerHTML = `The real bot uses the fake bot's own signal, so the two can be compared coin by coin once it trades. Fake bots put in 0.1 SOL a trade; the real one will start at 0.05. Since 9 Nov the fake bot is ${sol(f.pnl)} SOL; <b>without its single best coin it is ${sol(f.pnl - f.best)} SOL</b>.`;
+      const lf = L.lateFill;
+      if (lf) {
+        const rows = lf.rows.filter((x) => x.worst === 0.5);
+        el("barsL").innerHTML = rows.map((x) => { const w = Math.min(100, Math.max(0, 100 * x.back / 1.1));
+          const pos = w > 82 ? "left:0;padding-left:8px;color:#fff" : `left:${w.toFixed(1)}%`; // long bars carry their number inside, clear of the dashed line
+          return `<div class="brow">${(x.delayMs / 1000).toLocaleString()} s later<div class="track"><i style="width:${w.toFixed(1)}%"></i><b style="${pos}">${x.back.toFixed(2)}</b></div></div>`; }).join("");
+        el("lLateNote").innerHTML = `Every dip signal since 20:06 UTC on 9 Nov (${lf.signals}) replayed with only the fill time changed, at 0.05 SOL plus real network costs, skipping a buy if the price has risen more than 50% (the chosen limit). ${rows.every((x) => x.withoutBest < 0) ? "Every bar is <b>under break-even without the best coin</b>. " : ""}Replayed ${ago(lf.made)}.`;
+      } else el("barsL").innerHTML = `<p class="note">Not run yet.</p>`;
+      const ms = (v) => v == null ? "–" : v >= 1000 ? (v / 1000).toFixed(1) + " s" : v + " ms";
+      el("lFeed").textContent = ms(L.feed.med);
+      el("lPractice").textContent = L.practice.n ? `${L.practice.ok} of ${L.practice.n}` : "None yet";
+      el("lBuild").textContent = ms(L.practice.totalMed);
+      el("lSpeedNote").innerHTML = `Feed: middle of ${L.feed.n.toLocaleString()} trades, 9 in 10 under ${ms(L.feed.p90)}. Practice orders: a real 0.05 SOL-style buy built with pump.fun's own code at each dip signal and checked by the network, <b>never sent</b>. Together these suggest a real order would land about 0.6 to 1 second after the signal.`;
+    }
     // Only the picky bots (PERSON rules) are shown (Charles, 2026-11-10: everything below them removed). Eleven bots
     // were dropped 12:03 UTC 10 Nov (recorder/shadow.mjs) and are no longer in stats.json.
     // Each bot keeps its own colour; the table rows are sorted so the most profitable bot is on top.

@@ -159,12 +159,12 @@ async function load() {
     const L = s.live; el("live").hidden = !L;
     if (L) {
       const STEPS = ["Alerts", "Speed test", "Dry run", "Live, 0.05 SOL"];
-      el("lStatus").innerHTML = `<b>Step ${L.step} of 4: ${L.stepName}.</b> The bot is <b>${L.botOn ? "ON" : "OFF"}</b>. ${L.real ? "" : "No real trades yet."} Telegram alerts: <b>${L.alertsOn ? "on" : "off"}</b>.`;
+      el("lStatus").innerHTML = `<b>Step ${L.step} of 4: ${L.stepName}.</b> The bot is <b>${L.botOn ? "ON" : "OFF"}</b>. ${L.real ? "" : "No real trades yet."}${L.practiceWallet ? ` Practice wallet: <b>${L.practiceWallet.on ? "trading" : "off"}</b>, ${L.practiceWallet.balance.toFixed(4)} SOL.` : ""} Telegram: <b>${L.alertsOn ? "on" : "off"}</b>.`;
       el("lSteps").innerHTML = STEPS.map((n, i) => `<div class="${i + 1 < L.step ? "done" : i + 1 === L.step ? "now" : ""}"><b>${i + 1 < L.step ? "✓ " : ""}${i + 1}</b>${n}</div>`).join("");
       const back = (x) => x && x.stake > 0 ? 1 + x.pnl / x.stake : null;
       const row = (who, x, extra = "") => { const b = back(x);
         return `<tr${extra}><td>${who}</td><td>${x ? x.n : "–"}</td><td>${x ? x.won + `<small>${x.n ? Math.round(100 * x.won / x.n) + "%" : "–"}</small>` : "–"}</td><td class="${b == null ? "" : cls(+b.toFixed(2) - 1)}">${b == null ? "–" : b.toFixed(2)}</td><td class="${x ? cls(x.pnl) : ""}">${x ? sol(x.pnl) : "–"}</td></tr>`; };
-      el("rowsL").innerHTML = row("Real bot", L.real, ' class="realrow"') + row("Fake, this round", L.fakeRound) + row("Fake, since 9 Nov", L.fakeSince9Nov);
+      el("rowsL").innerHTML = row("Real bot", L.real, ' class="realrow"') + (L.practiceWallet ? row("Practice wallet<small>0.5 SOL start, real prices, fees and limits</small>", L.practiceWallet) : "") + row("Fake, this round", L.fakeRound) + row("Fake, since 9 Nov", L.fakeSince9Nov);
       const f = L.fakeSince9Nov;
       el("lFakeNote").innerHTML = `The real bot uses the fake bot's own signal, so the two can be compared coin by coin once it trades. Fake bots put in 0.1 SOL a trade; the real one will start at 0.05. Since 9 Nov the fake bot is ${sol(f.pnl)} SOL; <b>without its single best coin it is ${sol(f.pnl - f.best)} SOL</b>.`;
       const lf = L.lateFill;
